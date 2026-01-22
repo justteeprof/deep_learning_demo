@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Human vs Deep Learning Doctor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa, #e2e6ea);
+        margin: 0;
+        padding: 0;
+        color: #333;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: auto;
+        padding: 30px;
+    }
+
+    h1, h2 {
+        text-align: center;
+        color: #5b3a29;
+    }
+
+    .card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 25px;
+        margin-top: 25px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+
+    .case {
+        font-size: 18px;
+        line-height: 1.6;
+    }
+
+    .options button {
+        display: block;
+        width: 100%;
+        margin: 10px 0;
+        padding: 14px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        background: #8b5e3c;
+        color: white;
+        transition: background 0.3s;
+    }
+
+    .options button:hover {
+        background: #6f472d;
+    }
+
+    .ai-box {
+        background: #f1f3f5;
+        border-left: 6px solid #8b5e3c;
+        padding: 15px;
+        margin-top: 20px;
+        font-size: 17px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .confidence {
+        font-weight: bold;
+        color: #b23a3a;
+    }
+
+    .footer {
+        text-align: center;
+        margin-top: 40px;
+        font-size: 14px;
+        color: #777;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🧠 Human vs Deep Learning Doctor</h1>
+<h2>An Interactive Healthcare AI Game</h2>
+
+<div class="card" id="intro">
+    <p class="case">
+        You will act as a <strong>Human Doctor</strong>.  
+        The system will act as a <strong>Deep Learning Model</strong>.
+        <br><br>
+        Make your diagnosis first, then see what the AI predicts.
+    </p>
+    <button onclick="startGame()">Start Game</button>
+</div>
+
+<div class="card hidden" id="caseCard">
+    <h2 id="caseTitle"></h2>
+    <div class="case" id="caseText"></div>
+
+    <div class="options" id="options"></div>
+
+    <div class="ai-box hidden" id="aiResult"></div>
+
+    <button class="hidden" id="nextBtn" onclick="nextCase()">Next Case</button>
+</div>
+
+<div class="footer">
+    Designed for AI in Healthcare Education
+</div>
+
+</div>
+
+<script>
+const cases = [
+    {
+        title: "Case 1",
+        text: `
+        52-year-old male <br>
+        Epigastric pain <br>
+        Progressive weight loss <br>
+        Vomiting <br>
+        Hemoglobin: 9.2 g/dL
+        `,
+        options: [
+            "Peptic ulcer disease",
+            "Gastric cancer",
+            "Acute pancreatitis"
+        ],
+        ai: "Gastric cancer",
+        confidence: "92%",
+        explanation: "The model learned patterns from thousands of similar cases with anemia and weight loss."
+    },
+    {
+        title: "Case 2",
+        text: `
+        35-year-old female <br>
+        Epigastric discomfort <br>
+        Mild weight loss <br>
+        Normal hemoglobin <br>
+        Normal endoscopy image
+        `,
+        options: [
+            "Functional dyspepsia",
+            "Gastric cancer",
+            "Peptic ulcer disease"
+        ],
+        ai: "Gastric cancer",
+        confidence: "87%",
+        explanation: "The model is biased toward cancer because its training data had mostly older male patients."
+    },
+    {
+        title: "Case 3",
+        text: `
+        60-year-old male <br>
+        Dysphagia <br>
+        Weight loss <br>
+        Irregular esophageal lesion on endoscopy
+        `,
+        options: [
+            "GERD",
+            "Esophageal cancer",
+            "Achalasia"
+        ],
+        ai: "Esophageal cancer",
+        confidence: "99%",
+        explanation: "High confidence does not mean certainty. AI outputs probability, not understanding."
+    }
+];
+
+let currentCase = 0;
+
+function startGame() {
+    document.getElementById("intro").classList.add("hidden");
+    document.getElementById("caseCard").classList.remove("hidden");
+    loadCase();
+}
+
+function loadCase() {
+    const c = cases[currentCase];
+    document.getElementById("caseTitle").innerText = c.title;
+    document.getElementById("caseText").innerHTML = c.text;
+
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+
+    c.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.innerText = option;
+        btn.onclick = () => showAI(option);
+        optionsDiv.appendChild(btn);
+    });
+
+    document.getElementById("aiResult").classList.add("hidden");
+    document.getElementById("nextBtn").classList.add("hidden");
+}
+
+function showAI(userChoice) {
+    const c = cases[currentCase];
+    const aiBox = document.getElementById("aiResult");
+
+    aiBox.innerHTML = `
+        <strong>Your choice:</strong> ${userChoice}<br><br>
+        <strong>AI prediction:</strong> ${c.ai}<br>
+        <span class="confidence">Confidence: ${c.confidence}</span><br><br>
+        ${c.explanation}
+    `;
+
+    aiBox.classList.remove("hidden");
+    document.getElementById("nextBtn").classList.remove("hidden");
+}
+
+function nextCase() {
+    currentCase++;
+    if (currentCase < cases.length) {
+        loadCase();
+    } else {
+        document.getElementById("caseCard").innerHTML = `
+            <h2>🎯 Key Takeaways</h2>
+            <ul style="font-size:18px; line-height:1.7">
+                <li>Deep learning recognizes patterns, not diseases</li>
+                <li>Bias in data leads to biased predictions</li>
+                <li>High confidence ≠ correctness</li>
+                <li>Best healthcare outcomes = Human + AI</li>
+            </ul>
+            <h3 style="text-align:center">Thank you for playing!</h3>
+        `;
+    }
+}
+</script>
+
+</body>
+</html>
